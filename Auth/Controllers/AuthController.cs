@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Auth.Controllers
 {
@@ -13,12 +10,12 @@ namespace Auth.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        public static User user= new User();
+        public static User user = new User();
         private readonly IConfiguration _configuration;
 
-        public AuthController(IConfiguration configuration)=>
+        public AuthController(IConfiguration configuration) =>
            _configuration = configuration;
-        
+
 
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserDTO request)
@@ -55,33 +52,33 @@ namespace Auth.Controllers
                 new Claim(ClaimTypes.Name,user.Username)
             };
 
-            var key= new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
                 _configuration.GetSection("AppSettings:Token").Value));
 
-            var cred= new SigningCredentials(key,SecurityAlgorithms.HmacSha512Signature);
+            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
             var token = new JwtSecurityToken(
-                claims:claims,
-                expires:DateTime.Now.AddDays(1),
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
                 signingCredentials: cred);
 
-            var jwt= new JwtSecurityTokenHandler().WriteToken(token);
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
             return jwt;
         }
 
-        private void CreatePasswordHash(string password,out byte[] passwordHash,out byte[] passwordSalt) 
+        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             using (var hmac = new HMACSHA512())
             {
                 passwordSalt = hmac.Key;
-                passwordHash= hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
             }
         }
 
         private bool VerifyPasswordHash(string password, byte[] passwordHas, byte[] passwordSalt)
         {
-            using(var hmac = new HMACSHA512(passwordSalt))
+            using (var hmac = new HMACSHA512(passwordSalt))
             {
                 var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
 
