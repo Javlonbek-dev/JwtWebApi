@@ -5,5 +5,9 @@
         public string Username { get; set; } = string.Empty;
         public byte[] Passwordhash { get; set; }
         public byte[] PaswwordSalt { get; set; }
+
+        public string RefreshToken { get; set; } = string.Empty;
+        public DateTime TokenCreated { get; set; }
+        public DateTime TokenExpires { get; set; }
     }
 }
